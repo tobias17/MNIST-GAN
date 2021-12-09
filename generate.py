@@ -4,7 +4,7 @@ import numpy as np
 
 from train import Generator, Discriminator
 
-model_name = 'epochs10'
+model_name = 'epochs5_32_128'
 
 seed = 100
 torch.manual_seed(seed)
@@ -23,7 +23,7 @@ netG.load_state_dict(torch.load(f'models/{model_name}_g.pth'))
 netD = Discriminator(ngpu=ngpu).to(device)
 netD.load_state_dict(torch.load(f'models/{model_name}_d.pth'))
 
-gridsize, image_size = 6, 64
+gridsize, image_size = 6, 32
 fixed_noise = torch.randn(gridsize*gridsize, nz, 1, 1, device=device)
 with torch.no_grad():
     fake = netG(fixed_noise).detach().cpu().numpy()
@@ -36,8 +36,8 @@ with torch.no_grad():
 
 blank = np.zeros((image_size*gridsize, image_size*gridsize, 1))
 for i in range(6*6):
-    blank[i%gridsize*image_size:(i%gridsize+1)*image_size, int(i/gridsize)*image_size:int(i/gridsize+1)*image_size] = \
-        np.transpose(fake[i], (1, 2, 0))
+    new_img = np.transpose(fake[i], (1, 2, 0))
+    blank[i%gridsize*image_size:(i%gridsize+1)*image_size, int(i/gridsize)*image_size:int(i/gridsize+1)*image_size] = new_img
 cv.imwrite(f'generated{gridsize}x{gridsize}.jpg', blank*255)
 cv.imshow('img', blank)
 cv.waitKey()
